@@ -1,0 +1,182 @@
+[
+  {
+    "q": "What are the two components of the RAG model introduced by Lewis et al.?",
+    "answerable": true,
+    "hint": "retriever and generator (seq2seq)",
+    "answer": "The RAG model leverages two components: (i) a retriever that returns distributions over text passages given a query, and (ii) a generator [1].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.289
+  },
+  {
+    "q": "What is the difference between RAG-Sequence and RAG-Token?",
+    "answerable": true,
+    "hint": "same retrieved document for whole output vs. different document per token",
+    "answer": "The RAG-Sequence model uses the same retrieved document to generate the complete sequence, treating the retrieved document as a single latent variable that is marginalized to obtain the sequence-to-sequence probability [2]. In contrast, the RAG-Token model can draw a different latent document for each target token and marginalize accordingly, which allows the generator to choose and combine content from several different documents when producing an answer [1][2]. Additionally, RAG-Sequence's generations are more diverse than RAG-Token's generations [5].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.296
+  },
+  {
+    "q": "How is the dense passage retriever in DPR trained, and what kind of negatives does it use?",
+    "answerable": true,
+    "hint": "dual encoder; in-batch negatives (and BM25 negatives)",
+    "answer": "The Dense Passage Retriever (DPR) model uses in-batch negative training with a batch size of 128 and one additional BM25 negative passage per question [2]. The question and passage encoders are trained for up to 40 epochs for large datasets (Natural Questions, TriviaQA, SQuAD) and 100 epochs for small datasets (TREC, WQ), using a learning rate of $10^{-5}$ with Adam, linear scheduling with warm-up, and a dropout rate of 0.1 [2]. In the standard 1-of-N training setting, each question in the batch is paired with a positive passage and its own set of $n$ negative passages, which can be random, BM25, or gold passages (positive passages from other questions) [1]. Additionally, in-batch negative training reuses the negative examples already present in the batch [1].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.199
+  },
+  {
+    "q": "What does HyDE generate before retrieval, and what does it do with it?",
+    "answerable": true,
+    "hint": "hypothetical document, embedded to find real documents",
+    "answer": "HyDE generates a hypothetical document that can contain factual errors but resembles a relevant document [5]. It then uses an unsupervised contrastive encoder to encode this generated document into an embedding vector [5].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.294
+  },
+  {
+    "q": "Which language model and which encoder does HyDE use in its main setup?",
+    "answerable": true,
+    "hint": "InstructGPT and Contriever",
+    "answer": "HyDE uses InstructGPT (a GPT-3 model from the instruct series, text-davinci-003) as its generative model, and Contriever models (the English-only Contriever model for English retrieval tasks and multilingual mContriever for non-English tasks) as its encoders [3].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.26
+  },
+  {
+    "q": "Where in the context window do language models use relevant information best, according to 'Lost in the Middle'?",
+    "answerable": true,
+    "hint": "beginning or end; worse in the middle",
+    "answer": "According to \"Lost in the Middle,\" language models use relevant information best when it occurs at the very beginning (primacy bias) or at the very end of their input context (recency bias) [1][5].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.187
+  },
+  {
+    "q": "What kinds of tasks did the 'Lost in the Middle' authors use to test long-context use?",
+    "answerable": true,
+    "hint": "multi-document question answering and key-value retrieval",
+    "answer": "The authors analyzed the performance of language models on two tasks: multi-document question answering and key-value retrieval [1].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.235
+  },
+  {
+    "q": "What does RAGAS evaluate, and does it need human-annotated reference answers?",
+    "answerable": true,
+    "hint": "reference-free evaluation of RAG pipelines (faithfulness, answer relevance, context relevance)",
+    "answer": "Ragas evaluates retrieval-augmented generation (RAG) pipelines across dimensions such as faithfulness (whether the answer is grounded in the retrieved context), answer relevance (whether the answer addresses the question), and context relevance (whether the retrieved context is sufficiently focused) [1][3]. Ragas is a reference-free evaluation framework and does not rely on ground truth human annotations [1][3].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.218
+  },
+  {
+    "q": "What are reflection tokens in Self-RAG and what are they used for?",
+    "answerable": true,
+    "hint": "special tokens for deciding retrieval and critiquing output",
+    "answer": "Reflection tokens are special tokens added to the model's vocabulary that are predicted alongside original vocabulary tokens to enable an LM to learn to retrieve, generate, and critique text passages and its own generation [1][2]. Inspired by reward models used in reinforcement learning, these critique tokens are inserted offline into the original corpus by a trained critic model [2]. \n\nReflection tokens are used to assess the model's own predictions after each generated segment as an integral part of the generation output, defining hard or soft constraints through a customizable decoding algorithm [2][3]. Specifically, they are used for the following aspects:\n* **Retrieval-on-demand (`Retrieve`)**: Used by the LM to determine whether an input and previous-step generation require factual grounding (indicating whether retrieval is unnecessary, necessary, or if the model should continue using previously retrieved evidence) [4].\n* **Relevant (`ISREL`)**: Used to indicate whether retrieved knowledge provides useful, relevant information to the input [4].\n* **Supported (`ISSUP`)**: Used to judge the attribution of how much information in the output is entailed or fully supported by certain evidence [4].\n* **Useful (`ISUSE`)**: Used to evaluate whether the response is a helpful and informative answer to the query independently of its factuality [4].\n\nFurthermore, leveraging reflection tokens allows for test-time model customizations, such as adjusting retrieval frequency for different downstream applications, customizing behaviors to user preferences (like balancing the trade-off between citation precision and completeness), and using segment-level beam search based on the weighted linear sum of reflection token probabilities [2][3].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.265
+  },
+  {
+    "q": "What does the retrieval evaluator in Corrective RAG do?",
+    "answerable": true,
+    "hint": "judges quality/relevance of retrieved documents and triggers an action",
+    "answer": "The retrieval evaluator in Corrective RAG assesses the overall quality, relevance, and reliability of retrieved documents for a given query [1][2][3]. It estimates relevance scores ranging from -1 to 1 for each document, which are then quantified into confidence degrees to trigger one of three knowledge retrieval actions: Correct, Incorrect, or Ambiguous [1][2][3]. Additionally, the evaluator is utilized again for filtering internal knowledge strips [3].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.224
+  },
+  {
+    "q": "What does ReAct combine in a single prompting approach?",
+    "answerable": true,
+    "hint": "reasoning traces and actions, interleaved",
+    "answer": "ReAct combines reasoning and acting with language models [1].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.257
+  },
+  {
+    "q": "How do Self-RAG and Corrective RAG each decide whether retrieved content can be trusted?",
+    "answerable": true,
+    "hint": "Self-RAG: critique tokens by the model; CRAG: separate retrieval evaluator",
+    "answer": "Self-RAG uses critique tokens to evaluate the quality of its output and determine whether it is fully supported by the retrieved evidence, categorizing attribution into fully supported, partially supported, or no support / contradictory [4][5]. Corrective RAG uses a lightweight retrieval evaluator to assess the overall quality, relevance, and reliability of retrieved documents for a query, quantifying a confidence degree that triggers different knowledge retrieval actions (Correct, Incorrect, or Ambiguous) [3].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.253
+  },
+  {
+    "q": "What are the three RAG paradigms described in the RAG survey?",
+    "answerable": true,
+    "hint": "Naive RAG, Advanced RAG, Modular RAG",
+    "answer": "The three RAG paradigms described in the survey are Naive RAG, Advanced RAG, and Modular RAG [1][3].",
+    "refused": false,
+    "retrieval_hit": true,
+    "cited_hit": true,
+    "best_distance": 0.286
+  },
+  {
+    "q": "What is the capital of France?",
+    "answerable": false,
+    "hint": null,
+    "answer": "Not found in the provided papers.",
+    "refused": true,
+    "retrieval_hit": false,
+    "cited_hit": false,
+    "best_distance": 0.482
+  },
+  {
+    "q": "Give me a recipe for vegetable biryani.",
+    "answerable": false,
+    "hint": null,
+    "answer": "Not found in the provided papers.",
+    "refused": true,
+    "retrieval_hit": false,
+    "cited_hit": false,
+    "best_distance": 0.322
+  },
+  {
+    "q": "Who won the 2022 FIFA World Cup?",
+    "answerable": false,
+    "hint": null,
+    "answer": "Not found in the provided papers.",
+    "refused": true,
+    "retrieval_hit": false,
+    "cited_hit": false,
+    "best_distance": 0.477
+  },
+  {
+    "q": "How do I deploy an app on Kubernetes?",
+    "answerable": false,
+    "hint": null,
+    "answer": "Not found in the provided papers.",
+    "refused": true,
+    "retrieval_hit": false,
+    "cited_hit": false,
+    "best_distance": 0.484
+  },
+  {
+    "q": "What is the current stock price of NVIDIA?",
+    "answerable": false,
+    "hint": null,
+    "answer": "Not found in the provided papers.",
+    "refused": true,
+    "retrieval_hit": false,
+    "cited_hit": false,
+    "best_distance": 0.416
+  }
+]
